@@ -3,10 +3,13 @@ from time import sleep
 
 # 下面信息可选填，填写后可提升自动化程度
 SEARCH_URL = ''  # 搜索结果的网址，填写后可自动打开搜索结果
-DOWNLOAD_PATH = ''  # 下载后存放路径，不填写默认下载到当前运行目录“WOS_Downloads”文件夹内
+DOWNLOAD_PATH = ''  # 文件下载存放路径，不填写默认下载到当前运行目录“WOS_Downloads”文件夹内
 
 USER_NAME = ''  # 学号，用于自动登录
 PASSWORD = ''  # 密码，用于自动登录
+
+RETRY = 3  # 导出搜索结果的重试次数，若网络条件不佳可适当增大
+
 
 MENU = [
     """主菜单）
@@ -30,8 +33,6 @@ MENU = [
     运行中...
 """,
 ]
-
-RETRY = 3  # 导出搜索结果的重试次数，若网络条件不佳可适当增大
 
 
 def getOp(s):

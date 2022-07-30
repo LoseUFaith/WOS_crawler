@@ -26,9 +26,14 @@ class WebDriver:
         o.add_argument("--disable-extensions")
         o.add_argument("user-agent:{}".format("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36"))
 
-        if os.path.exists(ChromeDriver_PATH):
+        if os.path.exists(os.getcwd() + "/chromedriver"):
+            print("ChromeDriver路径：当前目录")
+            self.driver = webdriver.Chrome(executable_path=os.getcwd() + "/chromedriver", options=o)
+        elif os.path.exists(ChromeDriver_PATH):
+            print(f"ChromeDriver路径：指定目录（{ChromeDriver_PATH}）")
             self.driver = webdriver.Chrome(executable_path=ChromeDriver_PATH, options=o)
         else:
+            print("ChromeDriver路径：系统环境变量")
             self.driver = webdriver.Chrome(options=o)
 
     def getChrome(self):

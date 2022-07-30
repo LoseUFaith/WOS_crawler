@@ -40,6 +40,7 @@ class WOSDriver(driver.WebDriver):
     def exportExcel(self, begin, end=-1):
         if end - begin >= 1000 or end == -1:
             end = begin + 999
+        self.clearBanners()
         self.waitForLoaded(By.CSS_SELECTOR, "#snRecListTop > app-export-menu > div > button").click()
         sleep(1)
         self.waitForLoaded(By.CSS_SELECTOR, "#exportToExcelButton").click()
@@ -65,6 +66,7 @@ class WOSDriver(driver.WebDriver):
             self.waitForLoaded(By.XPATH, "//*[text()='Abstract and Other ']").click()
             self.waitForLoaded(By.XPATH, "//*[text()='Abstract and Other ']").click()
 
+            # 选择导出信息（可自定义添加）
             self.waitForLoaded(By.XPATH, "//*[text()='Author(s) ']").click()
             self.waitForLoaded(By.XPATH, "//*[text()='Title ']").click()
             self.waitForLoaded(By.XPATH, "//*[text()='Abstract ']").click()
