@@ -6,34 +6,39 @@ from selenium.common.exceptions import NoSuchElementException
 
 import traceback
 import os
+from time import sleep 
 
 # 若未设置环境变量，此处需手动输入Chrome Driver文件路径
-ChromeDriver_PATH = "PATH"
+ChromeDriver_PATH = 'PATH'
 
 
 class WebDriver:
     def __init__(self, download_path=None):
-        if download_path is None or not os.path.exists(download_path):
-            self.DOWNLOAD_PATH = os.getcwd() + "/WOS_Downloads"
-            if not os.path.exists(self.DOWNLOAD_PATH):
-                os.mkdir(self.DOWNLOAD_PATH)
-        else:
+        if os.path.isdir(str(download_path)):
             self.DOWNLOAD_PATH = download_path
+        else:
+            if str(download_path) != '':
+                print(f'文件下载存放路径 "{download_path}" 不存在！')
+                print('更改存放路径为当前目录下 "WOS_Downloads" 文件夹内。')
+            self.DOWNLOAD_PATH = os.path.join(os.getcwd(), 'WOS_Downloads')
+            if not os.path.isdir(self.DOWNLOAD_PATH):
+                os.mkdir(self.DOWNLOAD_PATH)
 
         prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': self.DOWNLOAD_PATH}
         o = webdriver.ChromeOptions()
         o.add_experimental_option('prefs', prefs)
-        o.add_argument("--disable-extensions")
-        o.add_argument("user-agent:{}".format("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36"))
+        o.add_argument('--disable-extensions')
+        o.add_argument('user-agent:{}'.format('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'))
 
-        if os.path.exists(os.getcwd() + "/chromedriver"):
-            print("ChromeDriver路径：当前目录")
-            self.driver = webdriver.Chrome(executable_path=os.getcwd() + "/chromedriver", options=o)
+        local_path = os.path.join(os.getcwd(), 'chromedriver')
+        if os.path.exists(local_path):
+            print('ChromeDriver路径：当前目录')
+            self.driver = webdriver.Chrome(executable_path=local_path, options=o)
         elif os.path.exists(ChromeDriver_PATH):
-            print(f"ChromeDriver路径：指定目录（{ChromeDriver_PATH}）")
+            print(f'ChromeDriver路径：指定目录（{ChromeDriver_PATH}）')
             self.driver = webdriver.Chrome(executable_path=ChromeDriver_PATH, options=o)
         else:
-            print("ChromeDriver路径：系统环境变量")
+            print('ChromeDriver路径：系统环境变量')
             self.driver = webdriver.Chrome(options=o)
 
     def getChrome(self):
@@ -47,7 +52,7 @@ class WebDriver:
             element = WebDriverWait(self.driver, limit).until(EC.presence_of_element_located((by, value)))
         except Exception as e:
             traceback.print_exc()
-            raise RuntimeError(f"Cannot find element: {value}")
+            raise RuntimeError(f'Cannot find element: {value}')
         else:
             return element
 
@@ -66,4 +71,7 @@ class WebDriver:
         self.driver.refresh()
 
     def __del__(self):
-        self.driver.quit()
+        try:
+            self.driver.quit()
+        except ImportError:
+            pass
