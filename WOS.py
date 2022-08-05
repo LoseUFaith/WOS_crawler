@@ -77,7 +77,7 @@ class WOSDriver(driver.WebDriver):
             self.waitForLoaded(By.XPATH, "//*[text()='Export']").click()
         except Exception as e:
             self.waitForLoaded(By.XPATH, "//button[@aria-label='Close']")
-            raise e
+            raise RuntimeError("Errro in export excel.")
 
         except_count = 10
         print(f'正在等待下载（{begin}-{end}）   ', end='')
@@ -94,7 +94,7 @@ class WOSDriver(driver.WebDriver):
             if except_count < 0:
                 raise RuntimeError('下载失败！')
         os.rename(os.path.join(self.DOWNLOAD_PATH, 'savedrecs.xls'), os.path.join(self.DOWNLOAD_PATH, f'/Records{begin}-{end}.xls'))
-        print('\b\b下载完成。')
+        print('\b\b\b.下载完成。')
 
     def getResultsNumber(self):
         return int(self.waitForLoaded(By.CSS_SELECTOR, 'body > app-wos > div > div > main > div > div > div.held > app-input-route > app-base-summary-component > app-search-friendly-display > div.search-display > app-general-search-friendly-display > h1 > span').text.replace(',', ''))

@@ -1,9 +1,15 @@
 import WOS
+import traceback
+import textProcessing as tp
+import pandas as pd
+import os
+
+from wordFig import wordFig
 from time import sleep
 from selenium.common.exceptions import InvalidArgumentException
 from selenium.common.exceptions import WebDriverException
 
-# 下面信息可选填，填写后可提升自动化程度
+# 以下信息可选填
 SEARCH_URL = ''  # 搜索结果的网址，填写后可自动打开搜索结果
 DOWNLOAD_PATH = ''  # 文件下载存放路径，不填写默认下载到当前运行目录“WOS_Downloads”文件夹内
 
@@ -11,6 +17,8 @@ USER_NAME = ''  # 学号，用于自动登录
 PASSWORD = ''  # 密码，用于自动登录
 
 RETRY = 3  # 导出搜索结果的重试次数，若网络条件不佳可适当增大
+
+EXCLUDE = ["Example1", "Example2"]  # 生成词云时需要除去的单词
 
 
 MENU = [
@@ -20,6 +28,8 @@ MENU = [
     2. 打开指定页面
     3. 保存部分搜索结果
     4. 保存全部搜索结果
+    5. 合并搜索结果
+    6. 生成图云
     0. 退出
 ''',
     '''自动登录）
@@ -33,6 +43,12 @@ MENU = [
 ''',
     '''保存全部搜索结果）
     运行中...
+''',
+    '''合并搜索结果）
+    运行中...
+''',
+    '''生成图云）
+    生成中...
 ''',
 ]
 
@@ -85,32 +101,33 @@ if __name__ == '__main__':
 
     while True:
         op = getOp(MENU[0])
-        if op < 0 or op > 4:
+        if op < 0 or op > 6:
             ENTERtoResume('无效的选择！请输入有效选项。')
-            continue
-        if op == 1:
+
+        # 自动登录
+        elif op == 1:  
             print(MENU[1])
             try:
                 browser.autoLogin(USER_NAME, PASSWORD)
             except Exception as e:
                 print(e)
                 input('自动登录失败！请重试或尝试手动登录。')
-                continue
             else:
                 input('完成，按回车返回主菜单。')
-                continue
-        if op == 2:
+
+        # 打开页面
+        elif op == 2:
             print(MENU[2])
             try:
                 browser.open_url(SEARCH_URL)
             except Exception as e:
                 print(e)
                 input('打开页面失败！请重试或尝试手动打开。')
-                continue
             else:
                 input('完成，按回车返回主菜单。')
-                continue
-        if op == 3:
+
+        # 部分保存
+        elif op == 3:
             print(MENU[3])
             begin, end = getInts(2)
             flag = False
@@ -118,22 +135,23 @@ if __name__ == '__main__':
             while True:
                 try:
                     browser.exportExcel(begin, end)
+                    if end - begin > 999:
+                        begin += 1000
+                    else:
+                        break
                 except Exception as e:
                     try_count += 1
                     if try_count >= RETRY:
-                        print(e)
+                        traceback.print_exc()
                         input('保存部分结果失败！请尝试重试。')
                         flag = True
                         break
                     browser.refreshPage()
-                if end - begin > 999:
-                    begin += 1000
-                else:
-                    break
             if not flag:
                 input('完成，按回车返回主菜单。')
-            continue
-        if op == 4:
+
+        # 全部保存
+        elif op == 4:
             print(MENU[4])
 
             try_count = 0
@@ -159,6 +177,10 @@ if __name__ == '__main__':
             while True:
                 try:
                     browser.exportExcel(begin, end)
+                    if end - begin > 999:
+                        begin += 1000
+                    else:
+                        break
                 except Exception as e:
                     try_count += 1
                     if try_count >= RETRY:
@@ -168,12 +190,48 @@ if __name__ == '__main__':
                         break
                     browser.refreshPage()
 
-                if end - begin > 999:
-                    begin += 1000
-                else:
-                    break
             if not flag:
                 input('完成，按回车返回主菜单。')
-            continue
-        if op == 0:
+
+        # 合并搜索结果
+        elif op == 5:
+            print(MENU[5])
+            files = tp.getFiles(browser.DOWNLOAD_PATH, 'xls')
+            dt = pd.DataFrame()
+            if not files:
+                input('合并错误！搜索结果为空，请保存搜索结果后重试。')
+                continue
+            for file in files:
+                tmp = pd.read_excel(file)
+                dt = pd.concat([dt, tmp])
+            dt.to_excel(os.path.join(browser.DOWNLOAD_PATH, 'AllRecords.xlsx'), index=None)
+            input('完成，按回车返回主菜单。')
+
+        # 生成词云
+        elif op == 6:
+            print(MENU[6])
+            path = os.path.join(browser.DOWNLOAD_PATH, 'AllRecords.xlsx')
+            if not os.path.exists(path):
+                input('生成失败！文件不存在，请合并搜索结果后重试。')
+                continue
+            dt = pd.read_excel(path)
+            textT = tp.getAllKeys(dt, 'Article Title')
+            textA = tp.getAllKeys(dt, 'Abstract')
+
+            figT = wordFig(textT, EXCLUDE)
+            figA = wordFig(textA, EXCLUDE)
+
+            print('当前显示标题词云。')
+            figT.showPng('Title')
+            print('当前显示摘要词云。')
+            figA.showPng('Abstract')
+
+            s = input('输入任意字符保存图片，或直接按下回车跳过：')
+            if s:
+                figT.savePng('Title.png')
+                figA.savePng('Abstract.png')
+
+            input('完成，按回车返回主菜单。')
+
+        elif op == 0:
             break
