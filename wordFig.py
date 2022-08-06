@@ -1,5 +1,5 @@
-import wordcloud as wc
 import matplotlib.pyplot as plt
+import wordcloud as wc
 
 
 class wordFig:
@@ -28,7 +28,7 @@ class wordFig:
         for word in exclude:
             self.stopwords.add(word)
 
-    def showPng(self, title = 'WordCloud'):
+    def showPng(self, title='WordCloud'):
         plt.figure().canvas.set_window_title(title)
         # plt.title(title)
         plt.axis('off')

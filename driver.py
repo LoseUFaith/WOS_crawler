@@ -1,12 +1,10 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException
-
-import traceback
 import os
-from time import sleep 
+import traceback
+
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 # 若未设置环境变量，此处需手动输入Chrome Driver文件路径
 ChromeDriver_PATH = 'PATH'
@@ -28,7 +26,8 @@ class WebDriver:
         o = webdriver.ChromeOptions()
         o.add_experimental_option('prefs', prefs)
         o.add_argument('--disable-extensions')
-        o.add_argument('user-agent:{}'.format('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'))
+        o.add_argument('user-agent:{}'.format(
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'))
 
         local_path = os.path.join(os.getcwd(), 'chromedriver')
         if os.path.exists(local_path):

@@ -1,8 +1,10 @@
-from selenium.webdriver.common.by import By
-import driver
-from time import sleep
-from bs4 import BeautifulSoup
 import os
+from time import sleep
+
+from bs4 import BeautifulSoup
+from selenium.webdriver.common.by import By
+
+import driver
 
 
 class WOSDriver(driver.WebDriver):
@@ -14,20 +16,23 @@ class WOSDriver(driver.WebDriver):
             chrome = self.getChrome()
             page = chrome.page_source.encode('UTF-8')
             page = BeautifulSoup(page, 'lxml')
-            if page.find_all('button', class_ = 'cookie-setting-link'):
+            if page.find_all('button', class_='cookie-setting-link'):
                 chrome.find_element(By.CSS_SELECTOR, '#onetrust-accept-btn-handler').click()
-                # sleep(5)
+                sleep(5)
 
-            if page.find_all('button', class_ = 'bb-button _pendo-button-primaryButton _pendo-button'):
+            if page.find_all('button', class_='bb-button _pendo-button-primaryButton _pendo-button'):
                 chrome.find_element(By.CSS_SELECTOR, '#pendo-button-59b176ac').click()
         except Exception as e:
-            print('无法清除横幅！')
-            input('请手动清除横幅后按回车键继续。')
+            pass
+            # print(e)
+            # print('无法清除横幅！')
+            # print('尝试继续运行。')
 
     def autoLogin(self, username, password):
         select_element = self.waitForLoaded(By.CSS_SELECTOR, '.mat-select-arrow').click()
         self.waitForLoaded(By.CSS_SELECTOR, '#mat-option-9 span:nth-child(1)').click()
-        self.waitForLoaded(By.CSS_SELECTOR, 'button.wui-btn--login:nth-child(4) span:nth-child(1) span:nth-child(1)').click()
+        self.waitForLoaded(By.CSS_SELECTOR,
+                           'button.wui-btn--login:nth-child(4) span:nth-child(1) span:nth-child(1)').click()
         self.waitForLoaded(By.CSS_SELECTOR, '#show').send_keys('上海大学')
         sleep(1)
         self.waitForLoaded(By.CSS_SELECTOR, '#idpForm > div.unit1 > div > div > div.ipt > ul > li:nth-child(1)').click()
@@ -81,7 +86,9 @@ class WOSDriver(driver.WebDriver):
 
         except_count = 10
         print(f'正在等待下载（{begin}-{end}）   ', end='')
-        while any([filename.endswith('.crdownload') for filename in os.listdir(self.DOWNLOAD_PATH)]) or self.isElementExist(By.XPATH, "//button[@disabled='true' and @class='mat-focus-indicator cdx-but-md mat-stroked-button mat-button-base mat-primary mat-button-disabled']"):
+        while any([filename.endswith('.crdownload') for filename in os.listdir(self.DOWNLOAD_PATH)]) or \
+                self.isElementExist(By.XPATH,
+                                    "//button[@disabled='true' and @class='mat-focus-indicator cdx-but-md mat-stroked-button mat-button-base mat-primary mat-button-disabled']"):
             sleep(1)
             print('\b\b\b.  ', end='')
             sleep(1)
@@ -93,8 +100,12 @@ class WOSDriver(driver.WebDriver):
             except_count -= 1
             if except_count < 0:
                 raise RuntimeError('下载失败！')
-        os.rename(os.path.join(self.DOWNLOAD_PATH, 'savedrecs.xls'), os.path.join(self.DOWNLOAD_PATH, f'/Records{begin}-{end}.xls'))
+
+        os.rename(os.path.join(self.DOWNLOAD_PATH, 'savedrecs.xls'),
+                  os.path.join(self.DOWNLOAD_PATH, f'Records{begin}-{end}.xls'))
         print('\b\b\b.下载完成。')
 
     def getResultsNumber(self):
-        return int(self.waitForLoaded(By.CSS_SELECTOR, 'body > app-wos > div > div > main > div > div > div.held > app-input-route > app-base-summary-component > app-search-friendly-display > div.search-display > app-general-search-friendly-display > h1 > span').text.replace(',', ''))
+        return int(self.waitForLoaded(By.CSS_SELECTOR,
+                                      'body > app-wos > div > div > main > div > div > div.held > app-input-route > app-base-summary-component > app-search-friendly-display > div.search-display > app-general-search-friendly-display > h1 > span').text.replace(
+            ',', ''))

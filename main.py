@@ -1,25 +1,23 @@
-import WOS
-import traceback
-import textProcessing as tp
-import pandas as pd
 import os
+import traceback
 
-from wordFig import wordFig
-from time import sleep
-from selenium.common.exceptions import InvalidArgumentException
+import pandas as pd
 from selenium.common.exceptions import WebDriverException
 
+import WOS
+import textProcessing as tp
+from wordFig import wordFig
+
 # 以下信息可选填
-SEARCH_URL = ''  # 搜索结果的网址，填写后可自动打开搜索结果
+ SEARCH_URL = '' # 搜索结果的网址，填写后可自动打开搜索结果
 DOWNLOAD_PATH = ''  # 文件下载存放路径，不填写默认下载到当前运行目录“WOS_Downloads”文件夹内
 
-USER_NAME = ''  # 学号，用于自动登录
-PASSWORD = ''  # 密码，用于自动登录
+ USER_NAME = '' # 学号，用于自动登录
+ PASSWORD = '' # 密码，用于自动登录
 
 RETRY = 3  # 导出搜索结果的重试次数，若网络条件不佳可适当增大
 
 EXCLUDE = ["Example1", "Example2"]  # 生成词云时需要除去的单词
-
 
 MENU = [
     '''主菜单）
@@ -59,7 +57,7 @@ def getOp(s):
             op = int(input(s))
             return op
         except ValueError:
-            input('错误！输入必须为数字')
+            print('错误！输入必须为数字')
             continue
 
 
@@ -68,11 +66,11 @@ def getInts(number):
         try:
             lis = list(map(int, input(f'输入 {number} 个数字（使用空格隔开）：').split()))
             if len(lis) != number:
-                input(f'错误！输入必须为 {number} 个数字。')
+                print(f'错误！输入必须为 {number} 个数字。')
                 continue
             return lis
         except ValueError:
-            input('错误！输入必须为数字')
+            print('错误！输入必须为数字')
             continue
 
 
@@ -105,7 +103,7 @@ if __name__ == '__main__':
             ENTERtoResume('无效的选择！请输入有效选项。')
 
         # 自动登录
-        elif op == 1:  
+        elif op == 1:
             print(MENU[1])
             try:
                 browser.autoLogin(USER_NAME, PASSWORD)
