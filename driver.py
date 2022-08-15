@@ -1,4 +1,5 @@
 import os
+import platform
 import traceback
 
 from selenium import webdriver
@@ -25,11 +26,16 @@ class WebDriver:
         prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': self.DOWNLOAD_PATH}
         o = webdriver.ChromeOptions()
         o.add_experimental_option('prefs', prefs)
+        o.add_experimental_option('excludeSwitches', ['enable-automation','enable-logging'])
         o.add_argument('--disable-extensions')
-        o.add_argument('user-agent:{}'.format(
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'))
+        o.add_argument('user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36')
 
         local_path = os.path.join(os.getcwd(), 'chromedriver')
+
+        if platform.system()=='Windows':
+            print('Windows系统')
+            local_path += '.exe'
+
         if os.path.exists(local_path):
             print('ChromeDriver路径：当前目录')
             self.driver = webdriver.Chrome(executable_path=local_path, options=o)
